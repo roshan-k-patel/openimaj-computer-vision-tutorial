@@ -5,6 +5,10 @@ Following the tutorial to learn how to use the openIMAJ computer vision library:
 
 1.) Install Maven
 
+with homebrew:
+
+```brew install maven```
+
 2.) To create a new OpenIMAJ project, run the following command:
 
 ```mvn -DarchetypeGroupId=org.openimaj -DarchetypeArtifactId=openimaj-quickstart-archetype -DarchetypeVersion=1.3.10  archetype:generate```
