@@ -27,4 +27,4 @@ and run the command:
 
 ```mvn assembly:assembly```
 
-4.) Open the project in an IDE and copy the chapter folders to /src/main/java
+4.) Open the project as a maven project in an IDE (some require you to import) and copy the chapter folders to /src/main/java
