@@ -5,6 +5,7 @@ import org.openimaj.image.FImage;
 import org.openimaj.image.ImageUtilities;
 import org.openimaj.image.MBFImage;
 import org.openimaj.image.processing.convolution.Gaussian2D;
+import org.openimaj.image.processing.resize.ResizeProcessor;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,9 +34,6 @@ public class MyHybridImages {
         //Note that the input images are expected to have the same size, and the output
         //image will also have the same height & width as the inputs.
 
-        FImage highimage = highImage.flatten();
-
-        FImage lowimage = lowImage.flatten();
 
         /**
          * Low pass convolution
@@ -54,42 +52,50 @@ public class MyHybridImages {
 
 
         // convolution for low pass image
-        MBFImage dog = lowImage.process(new MyConvolution(kernel));
-        DisplayUtilities.display(dog, "Low-Passed Dog");
+        MBFImage lowConv = lowImage.process(new MyConvolution(kernel));
+        //DisplayUtilities.display(lowConv, "convolved / Low-Passed Dog");
 
         /**
          * High-pass convolution
          */
 
         // (this implies the window is +/- 4 sigmas from the centre of the Gaussian)
-        size = (int) (8.0f * highSigma + 1.0f);
+        int size2 = (int) (8.0f * highSigma + 1.0f);
 
         // size must be odd
-        if (size % 2 == 0) {
-            size++; // size must be odd
+        if (size2 % 2 == 0) {
+            size2++; // size must be odd
         }
 
-        kernel = Gaussian2D.createKernelImage(size, highSigma).pixels;
+        float[][] kernel2 = Gaussian2D.createKernelImage(size2, highSigma).pixels;
 
 
         // convolution for high pass image
-        MBFImage cat = highImage.process(new MyConvolution(kernel));
+        MBFImage highConv = highImage.process(new MyConvolution(kernel2));
+
+        //DisplayUtilities.display(highConv, "convolved / low pass cat");
 
         // subtract original image with low passed image for convolution
-        cat = highImage.subtract(cat);
+        highConv = highImage.subtract(highConv);
+
+        // cat after subtracting original image with low passed image
+        //DisplayUtilities.display(highConv, "Cat original minus low passed");
+
+        highConv = highConv.add(0.5f);
+
+        //DisplayUtilities.display(highConv, "high pass + 0.5");
 
         // add 0.5 to each pixel so that bright values are positive and dark values are negative
-        cat.addInplace(0.5f);
-        DisplayUtilities.display(cat, "High passed Cat");
 
         /**
          * Combine both images together
          */
 
-        highImage = dog.add(cat);
-        highImage.subtractInplace(0.5f);
-        DisplayUtilities.display(highImage, "Hybrid Image");
+        highConv = highConv.subtract(0.5f);
 
-        return highImage;
+        MBFImage hybrid = lowConv.add(highConv);
+
+
+        return hybrid;
     }
 }
